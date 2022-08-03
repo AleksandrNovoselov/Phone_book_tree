@@ -2,194 +2,202 @@
 #include <map>
 #include<string>
 #include<fstream>
-#include <vector>
+
 #include <sstream>
 using namespace std;
 
-//struct Node
-//{
-//	int data{ 0 };
-//	Node* left{ nullptr }, * right{ nullptr };
-//	Node(int data) :data{ data } {}
-//
-//};
-//
-//Node* CreateNode(int data)
-//{
-//	return new Node(data);
-//}
-//
-//class Tree
-//{
-//	Node* _root{ nullptr };
-//public:
-//	void Add(int data)
-//	{
-//		Node* current = _root;
-//		Node* prevNode = nullptr;
-//		if (_root == nullptr)
-//		{
-//			_root = CreateNode(data);
-//			return;
-//		}
-//		while (current != nullptr)
-//		{
-//			prevNode = current;
-//
-//			if (data > current->data)
-//				current = current->right;
-//			else
-//				current = current->left;
-//		}
-//		if (data > prevNode->data)
-//			prevNode->right = CreateNode(data);
-//		else
-//			prevNode->left = CreateNode(data);
-//	}
-//	void Print()
-//	{
-//		Print(_root);
-//	}
-//	void Print(Node* node)
-//	{
-//		if (node == nullptr)return;
-//
-//		Print(node->right);
-//		cout << node->data << endl;
-//		Print(node->left);
-//
-//	}
-//};
-string file{"file.txt"};
+void readFile(map <string, int>& listAbonent);
+void addAbonent(map <string, int>& listAbonent);
+void delAbonent(map <string, int>& listAbonent);
+void findAbonFam(map <string, int>& listAbonent);
+void findAbonPhone(map <string, int>& listAbonent);
+void printAll(map <string, int>& listAbonent);
+void printRange(map <string, int>& listAbonent);
+void writeFile(map <string, int>& listAbonent);
+//void saveAs(map <string, int>& listAbonent);
+void doWork(map<string, int> &listAbonent);
 
-struct Abonent {
-	string name;
-	int numberPhone;
-};
+string file="file.txt";
 
-Abonent CreatureAbonent(string name, int numPhone)
+
+int main()
 {
-	return Abonent{ name, numPhone };
-}
+	setlocale(0, "");
+	map <string, int> listAbonent; //сюда будут записываться абоненты из файла
 
-void createAbonents(std::vector<Abonent>& abonents)
-{
-	string name;
-	string tmpNumber;
-	int numberPhone;
-	while (true)
+	readFile(listAbonent); //прочитать данные из файла, записать в listAbonent
+	
+	cout << ">>> Добро пожаловать <<<\n";
+	cout << ">> количество повторов? <<\n";
+
+	int replay;
+	cin >> replay;
+
+	for (int i = 0; i < replay; i++)
 	{
-		cout << "Enter name:\n";
-		getline(cin, name);
-
-		if (name.length() == 0)
-			break;
-
-		cout << "Enter number phone:\n";
-		getline(cin, tmpNumber);
-
-		numberPhone = stoi(tmpNumber);
-
-		auto abonent = CreatureAbonent(name, numberPhone);
-		abonents.push_back(abonent);
+		doWork(listAbonent);
 	}
+	writeFile(listAbonent);
 
+	return 0;
 }
 
-
-void readFile()
+void doWork(map<string, int>& listAbonent)
 {
-	auto stream = fstream(file, ios_base::in | ios_base::app);
+	int choice;
+	cout << "> Что будем делать? <\n"
+		<< "1 – добавить абонента\n"
+		<< "2 – удалить абонента\n"
+		<< "3 – поиск абонента по фамилии\n"
+		<< "4 – поиск абонента по номеру телефона\n"
+		<< "5 – показать всех\n"
+		<< "6 – показать в диапазоне\n"
+		<< "7 – сохранить поиск в новый файл\n";
+
+	cin >> choice;
+	switch (choice)
+	{
+	case 1:
+		addAbonent(listAbonent);
+		break;
+	case 2:
+		delAbonent(listAbonent);
+		break;
+	case 3:
+		findAbonFam(listAbonent);
+		break;
+	case 4:
+		findAbonPhone(listAbonent);
+		break;
+	case 5:
+		printAll(listAbonent);
+		break;
+	case 6:
+		printRange(listAbonent);
+		break;
+	case 7:
+		//saveAs(listAbonent);
+		break;
+	default:
+		cout << "Неверный ввод\n";
+		break;
+	}
+}
+
+void readFile(map <string, int>& listAbonent) {
+	auto stream = fstream(file, ios_base::in);
 	if (stream.is_open())
 	{
 		auto delimetr = ';';
 		string line;
-
 		while (getline(stream, line))
 		{
 			stringstream streamLine(line);
 			string name;
 			string tmpNumber;
 			int numberPhone;
-
 			getline(streamLine, name, delimetr);
-			cout << "name: " << name;
-
 			getline(streamLine, tmpNumber, delimetr);
 			numberPhone = stoi(tmpNumber);
-			cout << ", phone" << numberPhone;
+
+			listAbonent.insert(make_pair(name, numberPhone));
 		}
 	}
 	stream.close();
 }
 
-void writeFile()
+void addAbonent(map <string, int>& listAbonent)
+{
+	string name;
+	int numberPhone;
+	cout << "Введите имя: ";
+	getline(cin,name);
+	getline(cin, name);
+	cout << "Введите номер телефона: ";
+	cin >> numberPhone;
+	listAbonent.insert(make_pair(name, numberPhone));
+}
+
+void  delAbonent(map <string, int>& listAbonent)
+{
+	string name;
+	cout << "Введите имя удаляемого абонента: ";
+	getline(cin, name);
+	getline(cin, name);
+	auto it = listAbonent.find(name);
+
+	//it=findAbonFam(listAbonent);  попробовать заменить
+	if (it == listAbonent.end())
+		cout << "Абонент не найден";
+	else
+	{
+		cout << name << " удален";
+		listAbonent.erase(it);
+	}
+}
+
+void findAbonFam(map <string, int>& listAbonent) {
+	//map<string, int>::iterator it;
+	string name;
+	cout << "Введите имя для поиска: ";
+	getline(cin, name);
+	getline(cin, name);
+	auto it = listAbonent.find(name);
+	cout << it->first << ":" << it->second << endl;
+	if (it == listAbonent.end())
+		cout << "Абонент не найден";
+	//return it;
+}
+
+void findAbonPhone(map <string, int>& listAbonent) {
+	map <int, string> listAbonentNew;
+	for (auto item = listAbonent.begin(); item != listAbonent.end(); item++)
+	{
+		listAbonentNew.insert(make_pair(item->second, item->first));
+	}
+	int phone;
+	cout << "Введите номер телефона для поиска: ";
+	cin >> phone;
+	auto it = listAbonentNew.find(phone);
+	cout << it->second << " : " << it->first << endl;
+	if (it == listAbonentNew.end())
+		cout << "Абонент не найден";
+}
+
+void printAll(map <string, int>& listAbonent)
+{
+	for (auto item = listAbonent.begin(); item != listAbonent.end(); item++)
+	{
+		cout << item->first << " : " << item->second << endl;
+	}
+}
+
+void printRange(map <string, int>& listAbonent)
+{
+	cout << "Введите начало диапазона: ";
+	string name;
+	getline(cin, name);
+	getline(cin, name);
+
+	cout << "Введите конец диапазона: ";
+	string nameEnd;
+	getline(cin, nameEnd);
+
+	for (auto item = listAbonent.find(name); item != ++listAbonent.find(nameEnd); item++)
+	{
+		cout << item->first << " : " << item->second << endl;
+	}
+}
+
+void writeFile(map <string, int>& listAbonent)
 {
 	auto stream = fstream(file, ios_base::out);
-
-	if (stream.is_open())
-	{
-		string line;
-		while (true)
+	if (stream.is_open()) {
+		for (auto item = listAbonent.begin(); item != listAbonent.end(); item++)
 		{
-			cout << "Enter:\n";
-			getline(cin, line);
-
-			if (line.length() == 0)
-				break;
-			//line.append("\n");   вариан добавления пустой строки
-			stream << line << endl;
+			stream << item->first << ";" << item->second << endl;
 		}
 	}
 	stream.close();
 }
 
-int main()
-{
-	setlocale(0, "");
-
-	//map<string, int> list;
-	//cout << "Введите количество элементов";
-	//int count = 0;
-	//cin >> count;
-	//for(int i=0; i<count;i++)
-	//{
-	//	createAbonents()
-	//}
-
-
-	//list.insert(pair<int, int>(1, 10));
-	//list.insert(make_pair(2, 5));
-
-	//for (auto item = list.begin(); item != list.end(); item++)
-	//{
-	//	cout << item->first << ":" << item->second << endl;
-	//}
-
-	//inn (read) out(write) app(add)
-	
-	readFile();
-
-	
-
-
-	//readFile();
-	vector <Abonent> abonentList;
-	auto stream = fstream(file, ios_base::out);
-
-	createAbonents(abonentList);
-
-	if (stream.is_open())
-	{
-		for (auto& abonent : abonentList)//for-each
-		{
-			stream << abonent.name << " ; " << abonent.numberPhone << endl;
-		}
-	}
-
-	stream.close();
-
-	writeFile();
-
-	return 0;
-}
