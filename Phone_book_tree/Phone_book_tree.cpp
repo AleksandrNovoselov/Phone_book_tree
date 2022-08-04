@@ -13,8 +13,8 @@ void findAbonFam(map <string, int>& listAbonent);
 void findAbonPhone(map <string, int>& listAbonent);
 void printAll(map <string, int>& listAbonent);
 void printRange(map <string, int>& listAbonent);
-void writeFile(map <string, int>& listAbonent);
-//void saveAs(map <string, int>& listAbonent);
+void writeFile(map <string, int>& listAbonent, string file);
+void saveAs(map <string, int>& listAbonent);
 void doWork(map<string, int> &listAbonent);
 
 string file="file.txt";
@@ -37,7 +37,7 @@ int main()
 	{
 		doWork(listAbonent);
 	}
-	writeFile(listAbonent);
+	writeFile(listAbonent, file);
 
 	return 0;
 }
@@ -51,8 +51,8 @@ void doWork(map<string, int>& listAbonent)
 		<< "3 – поиск абонента по фамилии\n"
 		<< "4 – поиск абонента по номеру телефона\n"
 		<< "5 – показать всех\n"
-		<< "6 – показать в диапазоне\n"
-		<< "7 – сохранить поиск в новый файл\n";
+		<< "6 – показать в диапазоне\n";
+		
 
 	cin >> choice;
 	switch (choice)
@@ -74,9 +74,6 @@ void doWork(map<string, int>& listAbonent)
 		break;
 	case 6:
 		printRange(listAbonent);
-		break;
-	case 7:
-		//saveAs(listAbonent);
 		break;
 	default:
 		cout << "Неверный ввод\n";
@@ -126,7 +123,6 @@ void  delAbonent(map <string, int>& listAbonent)
 	getline(cin, name);
 	auto it = listAbonent.find(name);
 
-	//it=findAbonFam(listAbonent);  попробовать заменить
 	if (it == listAbonent.end())
 		cout << "Абонент не найден";
 	else
@@ -137,16 +133,22 @@ void  delAbonent(map <string, int>& listAbonent)
 }
 
 void findAbonFam(map <string, int>& listAbonent) {
-	//map<string, int>::iterator it;
 	string name;
 	cout << "Введите имя для поиска: ";
 	getline(cin, name);
 	getline(cin, name);
 	auto it = listAbonent.find(name);
-	cout << it->first << ":" << it->second << endl;
-	if (it == listAbonent.end())
+	if (it != listAbonent.end()) 
+	{
+		cout << it->first << ":" << it->second << endl;
+		map <string, int> listAbonentSave;
+		listAbonentSave.insert(make_pair(it->first, it->second));
+		saveAs(listAbonentSave);
+
+	}
+	else
 		cout << "Абонент не найден";
-	//return it;
+	
 }
 
 void findAbonPhone(map <string, int>& listAbonent) {
@@ -159,8 +161,16 @@ void findAbonPhone(map <string, int>& listAbonent) {
 	cout << "Введите номер телефона для поиска: ";
 	cin >> phone;
 	auto it = listAbonentNew.find(phone);
-	cout << it->second << " : " << it->first << endl;
-	if (it == listAbonentNew.end())
+	if (it != listAbonentNew.end())
+	{
+		cout << it->second << " : " << it->first << endl;
+
+		map <string, int> listAbonentSave;
+		listAbonentSave.insert(make_pair(it->second, it->first));
+
+		saveAs(listAbonentSave);
+	}
+	else
 		cout << "Абонент не найден";
 }
 
@@ -183,13 +193,18 @@ void printRange(map <string, int>& listAbonent)
 	string nameEnd;
 	getline(cin, nameEnd);
 
+	map <string, int> listAbonentSave;
+
 	for (auto item = listAbonent.find(name); item != ++listAbonent.find(nameEnd); item++)
 	{
 		cout << item->first << " : " << item->second << endl;
+
+		listAbonentSave.insert(make_pair(item->first, item->second));
 	}
+	saveAs(listAbonentSave);
 }
 
-void writeFile(map <string, int>& listAbonent)
+void writeFile(map <string, int>& listAbonent,string file)
 {
 	auto stream = fstream(file, ios_base::out);
 	if (stream.is_open()) {
@@ -200,4 +215,18 @@ void writeFile(map <string, int>& listAbonent)
 	}
 	stream.close();
 }
+
+void saveAs(map <string, int>& listAbonent)
+{
+	cout << "Сохранить найденные данные в новый файл ? \n y - Да n - Нет\n";
+	char save;
+	
+	cin >> save;
+	if (save == 'y')
+	{
+		writeFile(listAbonent, "find.txt");
+		cout << "Данные сохранены в файле find.txt\n";
+	}
+}
+
 
