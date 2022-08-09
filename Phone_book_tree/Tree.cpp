@@ -1,20 +1,27 @@
 #include "Tree.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 void Tree::readFile(string file)
 {
 	auto stream = fstream(file, ios_base::in);
+
 	if (stream.is_open())
 	{
 		auto delimetr = ';';
 		string line;
+
 		while (getline(stream, line))
 		{
 			stringstream streamLine(line);
 			string name;
 			string tmpNumber;
 			int numberPhone;
+
 			getline(streamLine, name, delimetr);
 			getline(streamLine, tmpNumber, delimetr);
+
 			numberPhone = stoi(tmpNumber);
 
 			_listAbonent.insert(make_pair(name, numberPhone));
@@ -27,60 +34,76 @@ void Tree::addAbonent()
 {
 	string name;
 	int numberPhone;
+
 	cout << "¬ведите им€: ";
 	getline(cin, name);
 	getline(cin, name);
+
 	cout << "¬ведите номер телефона: ";
 	cin >> numberPhone;
+
 	_listAbonent.insert(make_pair(name, numberPhone));
 }
 
 void Tree::delAbonent()
 {
 	string name;
+
 	cout << "¬ведите им€ удал€емого абонента: ";
 	getline(cin, name);
 	getline(cin, name);
+
 	auto it = _listAbonent.find(name);
 
 	if (it == _listAbonent.end())
+	{
 		cout << "јбонент не найден\n";
+	}
 	else
 	{
-		cout << name << " удален\n";
 		_listAbonent.erase(it);
+		cout << name << " удален\n";
 	}
 }
 
 void Tree::findAbonFam()
 {
 	string name;
+
 	cout << "¬ведите им€ дл€ поиска: ";
 	getline(cin, name);
 	getline(cin, name);
+
 	auto it = _listAbonent.find(name);
+
 	if (it != _listAbonent.end())
 	{
 		cout << it->first << ":" << it->second << endl;
+
 		map<string, int> listAbonentSave;
 		listAbonentSave.insert(make_pair(it->first, it->second));
+
 		saveAs(listAbonentSave);
 	}
 	else
+	{
 		cout << "јбонент не найден\n";
+	}
 }
 
 void Tree::findAbonPhone()
 {
-	map <int, string> listAbonentNew;
-	for (auto item = _listAbonent.begin(); item != _listAbonent.end(); item++)
-	{
-		listAbonentNew.insert(make_pair(item->second, item->first));
-	}
 	int phone;
+	map <int, string> listAbonentNew;
+
+	for (auto item = _listAbonent.begin(); item != _listAbonent.end(); item++)
+		listAbonentNew.insert(make_pair(item->second, item->first));
+
 	cout << "¬ведите номер телефона дл€ поиска: ";
 	cin >> phone;
-	auto it = listAbonentNew.find(phone);
+
+	const auto it = listAbonentNew.find(phone);
+
 	if (it != listAbonentNew.end())
 	{
 		cout << it->second << " : " << it->first << endl;
@@ -104,13 +127,14 @@ void Tree::printAll()
 
 void Tree::printRange()
 {
-	cout << "¬ведите начало диапазона: ";
 	string name;
+	string nameEnd;
+
+	cout << "¬ведите начало диапазона: ";
 	getline(cin, name);
 	getline(cin, name);
 
 	cout << "¬ведите конец диапазона: ";
-	string nameEnd;
 	getline(cin, nameEnd);
 
 	map <string, int> listAbonentSave;
@@ -121,29 +145,35 @@ void Tree::printRange()
 
 		listAbonentSave.insert(make_pair(item->first, item->second));
 	}
+
 	saveAs(listAbonentSave);
 }
 
 void Tree::writeFile(string file)
 {
 	auto stream = fstream(file, ios_base::out);
+
 	if (stream.is_open()) {
 		for (auto item = _listAbonent.begin(); item != _listAbonent.end(); item++)
 		{
 			stream << item->first << ";" << item->second << endl;
 		}
 	}
+
 	stream.close();
 }
+
 void Tree::writeFile(map<string, int>& listAbonentSave, string file)
 {
 	auto stream = fstream(file, ios_base::out);
+
 	if (stream.is_open()) {
 		for (auto item = listAbonentSave.begin(); item != listAbonentSave.end(); item++)
 		{
 			stream << item->first << ";" << item->second << endl;
 		}
 	}
+
 	stream.close();
 }
 
